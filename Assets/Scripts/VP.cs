@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -61,7 +59,7 @@ public class VP : MonoBehaviour
 
             if (first)
             {
-                GameObject camera = GameObject.Find("Main Camera");
+                GameObject camera = GameObject.Find("MainCam");
                 //ModLoader.LoadMods();
                 //playCurrent();
                 vp1 = camera.AddComponent<VideoPlayer>();
@@ -89,7 +87,7 @@ public class VP : MonoBehaviour
                 curVp = vp2;
                 prevVp = vp1;
 
-                GameObject.Find("Main Camera").GetComponent<AudioSource>().Play();
+                GameObject.Find("MainCam").GetComponent<AudioSource>().Play();
                 playCurrent();
                 createButtons();
 
@@ -113,7 +111,7 @@ public class VP : MonoBehaviour
 
     public void Looped(VideoPlayer vp)
     {
-        float delta = GameObject.Find("Main Camera").GetComponent<AudioSource>().time % 4;
+        float delta = GameObject.Find("MainCam").GetComponent<AudioSource>().time % 4;
         int state = charState + poseState * 10;
         Debug.Log("Loop state: " + state);
         string nxtChar = curChar;
@@ -167,7 +165,7 @@ public class VP : MonoBehaviour
         if (!prepNext)
         {
             curVp.Play();
-            double time = GameObject.Find("Main Camera").GetComponent<AudioSource>().time % 4;
+            double time = GameObject.Find("MainCam").GetComponent<AudioSource>().time % 4;
             curVp.time = time;
             prevVp.Pause();
         } else

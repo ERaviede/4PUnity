@@ -66,8 +66,8 @@ public class UI : MonoBehaviour
     public void MusicChange(int track)
     {
         curTrack = track;
-        AudioSource source = GameObject.Find("Main Camera").GetComponent<AudioSource>();
-        float time = GameObject.Find("Main Camera").GetComponent<AudioSource>().time;
+        AudioSource source = GameObject.Find("MainCam").GetComponent<AudioSource>();
+        float time = GameObject.Find("MainCam").GetComponent<AudioSource>().time;
         source.clip = ModLoader.music[track];
         source.time = (time > source.clip.length) ? 0 : time;
         source.Play();

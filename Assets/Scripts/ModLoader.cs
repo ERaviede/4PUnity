@@ -8,22 +8,28 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
+//Class for loading all mods (characters, music, voice?)
 public class ModLoader : MonoBehaviour
 {
-    //public static Dictionary<string, List<string>> charMods = new Dictionary<string, List<string>>();
-    public static Dictionary<string, List<string>> charMods = new Dictionary<string, List<string>>();
+    public static IDictionary<string, List<string>> charMods = new Dictionary<string, List<string>>();
     public static List<AudioClip> music = new List<AudioClip>();
     public static bool loaded = false;
     public static int totalMods = 0;
     public static int loadedMods = 0;
-    static string logFile;
+    private static string logFile;
+
+    //TODO: Extract to MainController to control what is loaded instead (menu)
+    void Start() {
+        StartCoroutine(LoadAll());
+    }
 
     // Start is called before the first frame update
-    IEnumerator Start()
+    IEnumerator LoadAll()
     {
         string[] charDirs;
         string modsDir;
 
+        //Identify mods and character directories
         if (Application.platform != RuntimePlatform.Android)
         {
             modsDir = Application.dataPath + "/../mods/";
@@ -33,7 +39,8 @@ public class ModLoader : MonoBehaviour
                 Directory.CreateDirectory(modsDir + "/../logs");
             }
             logFile = modsDir + "../logs/" + DateTime.Now.ToString("ddMMyy_HHmmss") + ".txt";
-        } else
+        } 
+        else
         {
             if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageWrite) && !Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead))
             {
@@ -45,23 +52,28 @@ public class ModLoader : MonoBehaviour
             if(!Directory.Exists(GetAndroidInternalFilesDir() + "/.4PUnity"))
             {
                 Directory.CreateDirectory(GetAndroidInternalFilesDir() + "/.4PUnity");
-                
                 File.Create(GetAndroidInternalFilesDir() + "/.4PUnity/.nomedia");
             }
             if (!Directory.Exists(GetAndroidInternalFilesDir() + "/.4PUnity/music"))
+            {
                 Directory.CreateDirectory(GetAndroidInternalFilesDir() + "/.4PUnity/music");
+            }
             if (!Directory.Exists(GetAndroidInternalFilesDir() + "/.4PUnity/logs"))
+            {
                 Directory.CreateDirectory(GetAndroidInternalFilesDir() + "/.4PUnity/logs");
+            }
             modsDir = GetAndroidInternalFilesDir() + "/.4PUnity/";
             charDirs = Directory.GetDirectories(modsDir, "CHAR_*");
             logFile = modsDir + "logs/" + DateTime.Now.ToString("ddMMyy_HHmmss") + ".txt";
         }
 
+        //Load music
         List<string> musicFiles = new List<string>(Directory.GetFiles(modsDir + "music", "*.ogg"));
         musicFiles.AddRange(Directory.GetFiles(modsDir + "music", "*.mp3"));
 
         Dropdown mdd = GameObject.Find("MusicDropdown").GetComponent<Dropdown>();
         List<string> options = new List<string>();
+        
         foreach(string track in musicFiles)
         {
             string track2 = track.Replace('\\', '/');
@@ -78,7 +90,7 @@ public class ModLoader : MonoBehaviour
         mdd.AddOptions(options);
         mdd.onValueChanged.AddListener((int a) => { GameObject.Find("EventSystem").GetComponent<UI>().MusicChange(a); });
 
-        GameObject cam = GameObject.Find("Main Camera");
+        GameObject cam = GameObject.Find("MainCam");
         cam.GetComponent<AudioSource>().clip = music[0];
         cam.GetComponent<AudioSource>().loop = true;
 
@@ -110,7 +122,7 @@ public class ModLoader : MonoBehaviour
             charMods.Add(charName, files);
         }
 
-        GameObject camera = GameObject.Find("Main Camera");
+        GameObject camera = GameObject.Find("MainCam");
 
         bool firstVp = true;
         foreach (KeyValuePair<string, List<string>> charAnims in ModLoader.charMods)
@@ -150,7 +162,7 @@ public class ModLoader : MonoBehaviour
         loaded = true;
     }
 
-    static void LogHandler(string logString, string stackTrace, LogType type)
+    private static void LogHandler(string logString, string stackTrace, LogType type)
     {
         File.AppendAllText(logFile, 
             logString + "\r\n" + 
@@ -166,7 +178,6 @@ public class ModLoader : MonoBehaviour
 
     public static Sprite LoadNewSprite(string FilePath, float PixelsPerUnit = 100.0f)
     {
-
         // Load a PNG or JPG image from disk to a Texture2D, assign this texture to a new sprite and return its reference
 
         Sprite NewSprite;
@@ -178,7 +189,6 @@ public class ModLoader : MonoBehaviour
 
     public static Texture2D LoadTexture(string FilePath)
     {
-
         // Load a PNG or JPG file from disk to a Texture2D
         // Returns null if load fails
 
@@ -199,11 +209,11 @@ public class ModLoader : MonoBehaviour
     {
         string[] potentialDirectories = new string[]
         {
-        "/mnt/sdcard",
-        "/sdcard",
-        "/storage/sdcard0",
-        "/storage/sdcard1",
-        "/storage/emulated/0"
+            "/mnt/sdcard",
+            "/sdcard",
+            "/storage/sdcard0",
+            "/storage/sdcard1",
+            "/storage/emulated/0"
         };
 
         if (Application.platform == RuntimePlatform.Android)
